@@ -1,7 +1,9 @@
 const { Pool } = require('pg');
 
-let input = process.argv.slice(2);
-//console.log(input)
+const cohortName = process.argv[2];
+// Store all potentially malicious values in an array
+const values = [cohortName]
+
 
 const pool = new Pool ({
   user: 'vagrant', 
@@ -17,12 +19,14 @@ FROM teachers
 JOIN assistance_requests ON teacher_id = teachers.id
 JOIN students ON students.id = student_id
 JOIN cohorts ON cohorts.id = cohort_id
-WHERE cohorts.name='${input[0] || 'JUL02'}'
+WHERE cohorts.name= $1
 ORDER BY teachers.name;
-`)
+`, values)
 .then(res => {
   res.rows.forEach(row => {
     console.log(`${row.cohort}: ${row.teacher}`);
   })
 })
 .catch(err => console.error('query error', err.stack));
+
+
